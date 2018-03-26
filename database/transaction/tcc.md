@@ -12,7 +12,7 @@ WS-BusinessActivity提供了一种基于补偿的long-running的事务处理模�
 
 在JTA事务中，所有需要被事务管理的资源（由不同厂商实现）都必须实现规定接口（比如XAResource中的commit和rollback等），同理，所有需要加入TCC事务的服务也必须提供相应的接口实现，在TCC中这些接口为：try、confirm、cancel（缩写为TCC）。TCC事务管理器会使用try、confirm、cancel接口协调多个服务进行事务处理，如下图所示 :  
 
-![](https://github.com/taojintianxia/jargon/blob/master/picture/tcc/tcc.png)  
+![](https://github.com/taojintianxia/jargon/blob/master/resources/picture/tcc/tcc.png)  
 
 - Try: 尝试执行业务
     - 完成所有业务检查(一致性)
