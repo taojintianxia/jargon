@@ -64,7 +64,7 @@ CAP中说，不可能同时满足的这个一致性指的是强一致性。
 
 在满足一致性的时候，N1和N2中的数据是一样的，V0=V0。在满足可用性的时候，用户不管是请求N1或者N2，都会得到立即响应。在满足分区容错性的情况下，N1和N2有任何一方宕机，或者网络不通的时候，都不会影响N1和N2彼此之间的正常运作。
 
-<div align=center>![](https://raw.githubusercontent.com/taojintianxia/jargon/master/resources/img/distribution/cap/cap_prove_2.png)
+![](https://raw.githubusercontent.com/taojintianxia/jargon/master/resources/img/distribution/cap/cap_prove_2.png)
 
 如上图，是分布式系统正常运转的流程，用户向N1机器请求数据更新，程序A更新数据库Vo为V1，分布式系统将数据进行同步操作M，将V1同步的N2中V0，使得N2中的数据V0也更新为V1，N2中的数据再响应N2的请求。
 
@@ -72,7 +72,7 @@ CAP中说，不可能同时满足的这个一致性指的是强一致性。
 
 作为一个分布式系统，它和单机系统的最大区别，就在于网络，现在假设一种极端情况，N1和N2之间的网络断开了，我们要支持这种网络异常，相当于要满足分区容错性，能不能同时满足一致性和响应性呢？还是说要对他们进行取舍。
 
-<div align=center>![](https://raw.githubusercontent.com/taojintianxia/jargon/master/resources/img/distribution/cap/cap_prove_3.png)
+![](https://raw.githubusercontent.com/taojintianxia/jargon/master/resources/img/distribution/cap/cap_prove_3.png)
 
 假设在N1和N2之间网络断开的时候，有用户向N1发送数据更新请求，那N1中的数据V0将被更新为V1，由于网络是断开的，所以分布式系统同步操作M，所以N2中的数据依旧是V0；这个时候，有用户向N2发送数据读取请求，由于数据还没有进行同步，应用程序没办法立即给用户返回最新的数据V1，怎么办呢？
 
@@ -81,6 +81,24 @@ CAP中说，不可能同时满足的这个一致性指的是强一致性。
 第二，牺牲可用性，保证数据一致性。阻塞等待，直到网络连接恢复，数据更新操作M完成之后，再给用户响应最新的数据V1。
 
 这个过程，证明了要满足分区容错性的分布式系统，只能在一致性和可用性两者中，选择其中一个。
+
+## CAP权衡
+
+通过CAP理论及前面的证明，我们知道无法同时满足一致性、可用性和分区容错性这三个特性，那要舍弃哪个呢？
+
+我们分三种情况来阐述一下。
+
+### CA without P
+
+这种情况在分布式系统中几乎是不存在的。首先在分布式环境下，网络分区是一个自然的事实。因为分区是必然的，所以如果舍弃P，意味着要舍弃分布式系统。那也就没有必要再讨论CAP理论了。这也是为什么在前面的CAP证明中，我们以系统满足P为前提论述了无法同时满足C和A。
+
+比如我们熟知的关系型数据库，如My Sql和Oracle就是保证了可用性和数据一致性，但是他并不是个分布式系统。一旦关系型数据库要考虑主备同步、集群部署等就必须要把P也考虑进来。
+
+其实，在CAP理论中。C，A，P三者并不是平等的，CAP之父在《Spanner，真时，CAP理论》一文中写到：
+
+> 如果说Spanner真有什么特别之处，那就是谷歌的广域网。Google通过建立私有网络以及强大的网络工程能力来保证P，在多年运营改进的基础上，在生产环境中可以最大程度的减少分区发生，从而实现高可用性。
+
+
 
 ## 历史
 
