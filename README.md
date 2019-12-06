@@ -8,7 +8,7 @@
 
 ### 分布式
 * [CAP定理](https://github.com/taojintianxia/jargon/blob/master/distribution/CAP.md) - 分布式系统设计中最基础、重要的理论
-* [BASE理论]() -(Basically Available、Soft State、Eventual Consistency) BASE 理论是对 CAP 中一致性和可用性权衡的结果 
+* [BASE理论](https://github.com/taojintianxia/jargon/blob/master/distribution/BASE.md) -(Basically Available、Soft State、Eventual Consistency) BASE 理论是对 CAP 中一致性和可用性权衡的结果 
 
 ### 编程
 * [异构语言](https://github.com/taojintianxia/jargon/blob/master/coding/异构.md) - 不用顾虑语言差别的面向服务编程
