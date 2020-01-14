@@ -21,3 +21,4 @@ InnoDB的redo log可 以通过参数 `innodb_log_files_in_group` 配置成多个
 innodb_log_files_in_group * innodb_log_file_size
 ```
 Redo log文件以 `ib_logfile[number]` 命名，日志目录可以通过参数 `innodb_log_group_home_dir` 控制。Redo log 以顺序的方式写入文件文件，写满时则回溯到第一个文件，进行覆盖写。（但在做redo checkpoint 时，也会更新第一个日志文件的头部 checkpoint 标记，所以严格来讲也不算顺序写）。
+

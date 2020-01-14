@@ -63,14 +63,66 @@ InnoDB 的策略是尽量使用内存，因此对于一个长时间运行的库�
 
 ### InnoDB 刷脏页的控制策略
 
-首先，你要正确地告诉 InnoDB 所在主机的 IO 能力，这样 InnoDB 才能知道需要全力刷脏页的时候，可以刷多快。
+#### `innodb_io_capacity`
 
-这就要用到 `innodb_io_capacity` 这个参数了，它会告诉 InnoDB 你的磁盘能力。
+首先，你要正确地告诉 InnoDB 所在主机的 IO 能力，这样 InnoDB 才能知道需要全力刷脏页的时候，可以刷多快。`innodb_io_capacity ` 就是一个设置磁盘性能的参数。该值通常建议设置为磁盘的写 IOPS.
 
-现在你知道了，InnoDB 会在后台刷脏页，而刷脏页的过程是要将内存页写入磁盘。所以，无论是你的查询语句在需要内存的时候可能要求淘汰一个脏页，还是由于刷脏页的逻辑会占用 IO 资源并可能影响到了你的更新语句，都可能是造成你从业务端感知到 MySQL“抖”了一下的原因。
+> 该参数在 MySQL 5.5 及后续版本才可以调整.
 
-要尽量避免这种情况，你就要合理地设置 `innodb_io_capacity` 的值，并且平时要多关注脏页比例(参数 `innodb_max_dirty_pages_pct`)，不要让它经常接近 75%。
+测试磁盘的IOPS:
+
+```
+fio -filename=/data/tmp/test_randrw -direct=1 -iodepth 1 -thread -rw=randrw -ioengine=psync -bs=16k -size=500M -numjobs=10 -runtime=10 -group_reporting -name=mytest
+```
+
+>注意, 上面的 -filename 要指定具体的文件名, 千万不要指定分区, 否则会导致分区不可用, 需要重新格式化.
+>innodb_io_capacity 一般参考 写能力的 IOPS
+>
+>innodb_io_capacity 设置过低导致的性能问题案例:
+>MySQL 写入速度很慢, TPS很低, 但是数据库主机的 IO 压力并不大.
+
+现在你知道了，InnoDB 会在后台刷脏页，而刷脏页的过程是要将内存页写入磁盘。所以，无论是你的查询语句在需要内存的时候可能要求淘汰一个脏页，还是由于刷脏页的逻辑会占用 IO 资源并可能影响到了你的更新语句，都可能是造成你从业务端感知到 MySQL “抖”了一下的原因。
+
+当innodb_io_capacity 设置过小时, InnoDB 会认为磁盘性能差, 导致刷脏页很慢, 甚至比脏页生成速度还慢, 就会造成脏页累积, 影响查询和更新性能.
+
+`innodb_io_capacity` 大小设置:
+
+  - 配置小, 此时由于 InnoDB 认为你的磁盘性能差, 因此刷脏页频率会更高, 以此来确保内存中的脏页比例较少.
+  - 配置大, InnoDB 认为磁盘性能好, 因此刷脏页频率会降低, 抖动的频率也会降低.
+
+#### `innodb_max_dirty_pages_pct `
+
+`innodb_max_dirty_pages_pct ` 指的是脏页比例上限(默认值是 75%), 内存中的脏页比例越是接近该值, 则 InnoDB 刷盘速度会越接近全力.
+
+如何计算内存中的脏页比例:
+
+```
+show global status like 'Innodb_buffer_pool_pages%';
+```
+#### `innodb_flush_neighbors `
+
+当刷脏页时, 若脏页旁边的数据页也是脏页, 则会连带刷新, 注意这个机制是会蔓延的.
+
+当 `innodb_flush_neighbors=1` 时开启该机制, 默认是 1, 但在 MySQL 8.0 中默认值是 0.
+
+由于机械硬盘时代的 IOPS 一般只有几百, 该机制可以有效减少很多随机 IO, 提高系统性能.
+
+但在固态硬盘时代, 此时 IOPS 高达几千, 此时 IOPS 往往不是瓶颈, "只刷自己" 可以更快执行完查询操作, 减少 SQL 语句的响应时间.
+
+### 如果Redo Log 设置太小
+
+这里有一个案例:
+>测试在做压力测试时, 刚开始 insert, update 很快, 但是一会就变慢且响应延迟很高.
+
+出现这种情况大部分是因为 Redo Log 设置太小引起的.
+
+因为此时 Redo Log 写满后需要将 checkpoint 前推, 此时需要刷脏页, 可能还会连坐(`innodb_flush_neighbors=1`), 数据库"抖"的频率变高.
+
+其实此时内存的脏页比例可能还很低, 并没有充分利用到大内存优势, 此时需要频繁flush, 性能会变差.
+
+同时, 如果 Redo Log 中存在 change buffer, 同样需要做相应的 merge 操作, 导致 change buffer 发挥不出作用.
 
 ### 引用
 1. MySQL的刷脏页问题
 2. MySQL中InnoDB脏页刷新机制Checkpoint
+3. MySQL WAL(Write-Ahead Log)机制及脏页刷新
