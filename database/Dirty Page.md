@@ -123,6 +123,6 @@ show global status like 'Innodb_buffer_pool_pages%';
 同时, 如果 Redo Log 中存在 change buffer, 同样需要做相应的 merge 操作, 导致 change buffer 发挥不出作用.
 
 ### 引用
-1. MySQL的刷脏页问题
-2. MySQL中InnoDB脏页刷新机制Checkpoint
-3. MySQL WAL(Write-Ahead Log)机制及脏页刷新
+>1. MySQL的刷脏页问题
+>2. MySQL中InnoDB脏页刷新机制Checkpoint
+>3. MySQL WAL(Write-Ahead Log)机制及脏页刷新
