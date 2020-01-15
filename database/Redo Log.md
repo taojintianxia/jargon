@@ -22,7 +22,7 @@ innodb_log_files_in_group * innodb_log_file_size
 ```
 Redo log文件以 `ib_logfile[number]` 命名，日志目录可以通过参数 `innodb_log_group_home_dir` 控制。Redo log 以顺序的方式写入文件文件，写满时则回溯到第一个文件，进行覆盖写。（但在做redo checkpoint 时，也会更新第一个日志文件的头部 checkpoint 标记，所以严格来讲也不算顺序写）。
 
-
+![](https://raw.githubusercontent.com/taojintianxia/jargon/master/resources/img/database/Redo Log/ib_logfile.jpg)
 
 在InnoDB内部，逻辑上 `ib_logfile` 被当成了一个文件，对应同一个 space id。由于是使用 512 字节 block 对齐写入文件，可以很方便的根据全局维护的 LSN 号计算出要写入到哪一个文件以及对应的偏移量。
 
