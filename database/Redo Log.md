@@ -24,6 +24,17 @@ Redo log文件以 `ib_logfile[number]` 命名，日志目录可以通过参数 `
 
 ![](https://raw.githubusercontent.com/taojintianxia/jargon/master/resources/img/database/Redo Log/ib_logfile.jpg)
 
+如图所示：
+
+  - write pos 是当前记录的位置，一边写一边后移，写到最后一个文件末尾后就回到 0 号文件开头
+  - checkpoint 是当前要擦除的位置，也是往后推移并且循环的，擦除记录前要把记录更新到数据文件
+
+write pos 和 checkpoint 之间还空着的部分，可以用来记录新的操作。
+
+如果 write pos 追上 checkpoint，表示写满，这时候不能再执行新的更新，得停下来先擦掉一些记录，把 checkpoint 推进一下。
+
+Redo log 文件是循环写入的，在覆盖写之前，总是要保证对应的脏页已经刷到了磁盘。
+
 在InnoDB内部，逻辑上 `ib_logfile` 被当成了一个文件，对应同一个 space id。由于是使用 512 字节 block 对齐写入文件，可以很方便的根据全局维护的 LSN 号计算出要写入到哪一个文件以及对应的偏移量。
 
 Redo log 文件是循环写入的，在覆盖写之前，总是要保证对应的脏页已经刷到了磁盘。在非常大的负载下，Redo log 可能产生的速度非常快，导致频繁的刷脏操作，进而导致性能下降，通常在未做checkpoint 的日志超过文件总大小的76%之后，InnoDB 认为这可能是个不安全的点，会强制的preflush 脏页，导致大量用户线程 stall 住。如果可预期会有这样的场景，我们建议调大redo log文件的大小。可以做一次干净的 shutdown，然后修改 Redo log 配置，重启实例。
@@ -58,4 +69,28 @@ InnoDB的redo log采用覆盖循环写的方式，而不是拥有无限的 redo 
 InnoDB的master线程大约每隔 10 秒会做一次 redo checkpoint，但不会去 preflush 脏页来推进 checkpoint 点。
 
 通常普通的低压力负载下，page cleaner 线程的刷脏速度足以保证可作为检查点的 lsn 被及时的推进。但如果系统负载很高时，redo log 推进速度过快，而 page cleaner 来不及刷脏，这时候就会出现用户线程陷入同步刷脏并做同 checkpoint 的境地，这种策略的目的是为了保证 redo log 能够安全的写入文件而不会覆盖最近的检查点。
+
+### 其他
+
+redo log 有一个缓存区 `Innodb_log_buffer`，默认大小为 8M，Innodb 存储引擎先将重做日志写入 innodb_log_buffer 中。
+
+![](https://raw.githubusercontent.com/taojintianxia/jargon/master/resources/img/database/Redo Log/innodb_log_buffer.jpg)
+
+然后会通过以下三种方式将 innodb 日志缓冲区的日志刷新到磁盘：
+
+  1. Master Thread 每秒一次执行刷新 Innodb_log_buffer 到重做日志文件
+  2. 每个事务提交时会将重做日志刷新到重做日志文件
+  3. 当 redo log 缓存可用空间少于一半时，重做日志缓存被刷新到重做日志文件
+
+有了 redo log，InnoDB 就可以保证即使数据库发生异常重启，之前提交的记录都不会丢失，这个能力称为 `crash-safe`。
+
+CrashSafe 能够保证 MySQL 服务器宕机重启后：
+
+  - 所有已经提交的事务的数据仍然存在。
+  - 所有没有提交的事务的数据自动回滚。
+
+### 引用
+1. 如何恢复到半个月内任意一秒的状态？
+2. MySQL 日志系统之 redo log 和 binlog
+3. 详细分析MySQL事务日志redo log
 
