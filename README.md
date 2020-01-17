@@ -16,5 +16,5 @@
 ### 数据库
 * [全局事务和本地事务](https://github.com/taojintianxia/jargon/blob/master/database/transaction/全局事务和本地事务.md) - 数据库事务相关概念
 * [TCC](https://github.com/taojintianxia/jargon/blob/master/database/transaction/TCC.md) - TCC（Try-Confirm-Cancel） 是一种补偿性柔性事务
-* [Dirty Page](https://github.com/taojintianxia/jargon/blob/master/database/Dirty Page.md) - 最初为 Linux 内核中的概念，即内存中被修改后尚未持久化的数据页
-* [Redo Log](https://github.com/taojintianxia/jargon/blob/master/database/Redo Log.md) - 持久化数据前，保存在磁盘的物理日志
+* [Dirty Page](https://github.com/taojintianxia/jargon/blob/master/database/Dirty%20Page.md) - 最初为 Linux 内核中的概念，即内存中被修改后尚未持久化的数据页
+* [Redo Log](https://github.com/taojintianxia/jargon/blob/master/database/Redo%20Log.md) - 持久化数据前，保存在磁盘的物理日志
