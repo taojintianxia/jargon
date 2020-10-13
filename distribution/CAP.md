@@ -58,7 +58,7 @@ CAP中说，不可能同时满足的这个一致性指的是强一致性。
 
 ## CAP的证明
 
-![](https://raw.githubusercontent.com/taojintianxia/jargon/master/resources/img/distribution/cap/cap_prove_1.png)
+![](resources/img/distribution/cap/cap_prove_1.png)
 
 如上图，是我们证明 CAP 的基本场景，网络中有两个节点 N1 和 N2，可以简单的理解 N1 和 N2 分别是两台计算机，他们之间网络可以连通，N1 中有一个应用程序 A，和一个数据库 V，N2 也有一个应用程序 B2 和一个数据库 V。现在，A 和 B 是分布式系统的两个部分，V 是分布式系统的数据存储的两个子数据库。
 
