@@ -22,7 +22,7 @@ innodb_log_files_in_group * innodb_log_file_size
 ```
 Redo log文件以 `ib_logfile[number]` 命名，日志目录可以通过参数 `innodb_log_group_home_dir` 控制。Redo log 以顺序的方式写入文件文件，写满时则回溯到第一个文件，进行覆盖写。（但在做redo checkpoint 时，也会更新第一个日志文件的头部 checkpoint 标记，所以严格来讲也不算顺序写）。
 
-![](https://raw.githubusercontent.com/taojintianxia/jargon/master/resources/img/database/Redo%20Log/ib_logfile.jpg)
+![](../resources/img/database/Redo%20Log/ib_logfile.jpg)
 
 如图所示：
 
@@ -58,7 +58,7 @@ Redo log 文件是循环写入的，在覆盖写之前，总是要保证对应�
 
 下图表示了不同配置值的持久化程度：
 
-![](https://raw.githubusercontent.com/taojintianxia/jargon/master/resources/img/database/Redo%20Log/innodb_flush_log_at_trx_commit.png)
+![](../resources/img/database/Redo%20Log/innodb_flush_log_at_trx_commit.png)
 
 显然对性能的影响是随着持久化程度的增加而增加的。通常建议在日常场景将该值设置为 1，但在系统高峰期临时修改成 2 以应对大负载。
 
@@ -74,7 +74,7 @@ InnoDB的master线程大约每隔 10 秒会做一次 redo checkpoint，但不会
 
 redo log 有一个缓存区 `Innodb_log_buffer`，默认大小为 8M，Innodb 存储引擎先将重做日志写入 innodb_log_buffer 中。
 
-![](https://raw.githubusercontent.com/taojintianxia/jargon/master/resources/img/database/Redo%20Log/innodb_log_buffer.jpg)
+![](../resources/img/database/Redo%20Log/innodb_log_buffer.jpg)
 
 然后会通过以下三种方式将 innodb 日志缓冲区的日志刷新到磁盘：
 
