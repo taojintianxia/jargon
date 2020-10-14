@@ -8,7 +8,7 @@
 
 根据定理，分布式系统只能满足三项中的两项而不可能满足全部三项。理解 CAP 理论的最简单方式是想象两个节点分处分区两侧。允许至少一个节点更新状态会导致数据不一致，即丧失了 C 性质。如果为了保证数据一致性，将分区一侧的节点设置为不可用，那么又丧失了 A 性质。除非两个节点可以互相通信，才能既保证 C 又保证 A，这又会导致丧失P性质。
 
-![](https://raw.githubusercontent.com/taojintianxia/jargon/master/resources/img/distribution/cap/Teorema-CAP-2.png)
+![](../resources/img/distribution/cap/Teorema-CAP-2.png)
 
 > 需要注意的的是，CAP 理论中的 CA 和数据库事务中 ACID 的 CA 并完全是同一回事儿。两者之中的 C 都是一致性(Consistency)。CAP 中的 A 指的是可用性（Availability），而 ACID 中的 A 指的是原子性（Atomicity)
 
@@ -64,7 +64,7 @@ CAP中说，不可能同时满足的这个一致性指的是强一致性。
 
 在满足一致性的时候，N1 和 N2 中的数据是一样的，V0=V0。在满足可用性的时候，用户不管是请求 N1 或者 N2，都会得到立即响应。在满足分区容错性的情况下，N1 和 N2 有任何一方宕机，或者网络不通的时候，都不会影响 N1 和 N2 彼此之间的正常运作。
 
-![](https://raw.githubusercontent.com/taojintianxia/jargon/master/resources/img/distribution/cap/cap_prove_2.png)
+![](../resources/img/distribution/cap/cap_prove_2.png)
 
 如上图，是分布式系统正常运转的流程，用户向 N1 机器请求数据更新，程序 A 更新数据库 Vo 为 V1，分布式系统将数据进行同步操作 M，将 V1 同步的 N2 中 V0，使得 N2 中的数据 V0 也更新为V1，N2 中的数据再响应 N2 的请求。
 
@@ -72,7 +72,7 @@ CAP中说，不可能同时满足的这个一致性指的是强一致性。
 
 作为一个分布式系统，它和单机系统的最大区别，就在于网络，现在假设一种极端情况，N1 和 N2 之间的网络断开了，我们要支持这种网络异常，相当于要满足分区容错性，能不能同时满足一致性和可用性呢？还是说要对他们进行取舍。
 
-![](https://raw.githubusercontent.com/taojintianxia/jargon/master/resources/img/distribution/cap/cap_prove_3.png)
+![](../resources/img/distribution/cap/cap_prove_3.png)
 
 假设在 N1 和 N2 之间网络断开的时候，有用户向 N1 发送数据更新请求，那 N1 中的数据 V0 将被更新为 V1，由于网络是断开的，所以分布式系统同步操作 M，所以 N2 中的数据依旧是 V0；这个时候，有用户向 N2 发送数据读取请求，由于数据还没有进行同步，应用程序没办法立即给用户返回最新的数据V1，怎么办呢？
 
@@ -137,7 +137,7 @@ ZooKeeper 是 CP（一致性+分区容错性）的，即任何时刻对 ZooKeepe
 
 ## 历史
 
-这个定理起源于加州大学柏克莱分校（University of California, Berkeley）的计算机科学家埃里克·布鲁尔在2000年的分布式计算原理研讨会（PODC）上提出的一个猜想。在2002年，麻省理工学院（MIT）的赛斯·吉尔伯特和南希·林奇发表了布鲁尔猜想的证明，使之成为一个定理。
+这个定理起源于加州大学柏克莱分校（University of California, Berkeley）的计算机科学家埃里克·布鲁尔在 2000 年的分布式计算原理研讨会（PODC）上提出的一个猜想。在2002年，麻省理工学院（MIT）的赛斯·吉尔伯特和南希·林奇发表了布鲁尔猜想的证明，使之成为一个定理。
 
 CAP 理论最早在 1998 年秋季提出，1999 年正式发表
 
